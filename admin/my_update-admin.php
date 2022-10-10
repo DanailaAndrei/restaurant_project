@@ -1,4 +1,11 @@
-<?php include('partials/menu.php'); ?>
+<?php include('partials/menu.php');
+ $id = $_GET['id'];
+ $sql = "SELECT full_name,username FROM tbl_admin WHERE id = $id";
+ $res = mysqli_query($conn, $sql);
+ $row = mysqli_fetch_assoc($res);
+ $full_name = $row['full_name'];
+ $username = $row['username'];
+?>
 
 <div class="main-content">
     <div class="wrapper">
@@ -7,23 +14,9 @@
         <br><br>
 
         <?php
-        $id = $_GET['id'];
-        $sql = "SELECT * FROM tbl_admin WHERE id=$id";
-        $res = mysqli_query($conn, $sql); 
-
-        if($res == true)
-        {
-            $count = mysqli_num_rows($res);
-            if($count==1)
-            {
-                $row = mysqli_fetch_assoc($res);
-                $full_name = $row['full_name'];
-                $username = $row['username'];
-            }
-            else
-            {
-                header('location:' . SITEURL . 'admin/manage-admin.php');
-            }
+        if (isset($_SESSION['update'])) {
+            echo $_SESSION['update'];
+            unset($_SESSION['update']); //Removing session message
         }
         ?>
 
@@ -32,20 +25,26 @@
                 <tr>
                     <td>Full Name:</td>
                     <td>
-                        <input type="text" name="full-name" value = <?php echo $full_name; ?>>
+                        <input type="text" name="full-name" placeholder=<?php echo $full_name; ?>>
                     </td>
                 </tr>
 
                 <tr>
                     <td>Username: </td>
                     <td>
-                        <input type="text" name="username" value = <?php echo $username; ?>>
+                        <input type="text" name="username" placeholder=<?php echo $username; ?>>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Password: </td>
+                    <td>
+                        <input type="password" name="password" placeholder="your password">
                     </td>
                 </tr>
 
                 <tr>
                     <td colspan="2">
-                        <input type="hidden" name="id" value="<?php echo $id; ?>">
                         <input type="submit" name="submit" value="Update admin" class="btn-secondary">
                     </td>
                 </tr>
@@ -59,13 +58,14 @@
 <?php
 
 if (isset($_POST['submit'])) {
-    $id = $_POST['id'];
     $full_name = $_POST['full-name'];
     $username = $_POST['username'];
+    $password = md5($_POST['password']);
 
     $sql = "UPDATE tbl_admin SET 
                 full_name = '$full_name',
-                username = '$username'
+                username = '$username',
+                password = '$password'
                 WHERE id = $id";
 
     $res = mysqli_query($conn, $sql) or die(mysqli_error($conn));
@@ -73,10 +73,12 @@ if (isset($_POST['submit'])) {
     if ($res == true) {
         // echo "admin updated";
         $_SESSION['update'] = "<div class='success'>Admin updated successfully</div>";
+        echo $_SESSION['update'];
         header('location:' . SITEURL . 'admin/manage-admin.php');
     } else {
         // echo "failed to delete admin";
         $_SESSION['update'] = "<div class='error'>Failed to update admin</div>";
+        echo $_SESSION['update'];
         header('location:' . SITEURL . 'admin/manage-admin.php');
     }
 }
