@@ -1,9 +1,10 @@
-<?php
-include('../config/constants.php');
- 
-// Destroy the session
-session_destroy();
+<?php 
+    //Include constants.php for SITEURL
+    include('../config/constants.php');
+    //1. Destory the Session
+    session_destroy(); //Unsets $_SESSION['user']
 
-// Redirect to login page
-header("location:".SITEURL.'admin/login.php');
+    //2. REdirect to Login Page
+    header('location:'.SITEURL.'admin/login.php');
+
 ?>
